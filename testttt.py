@@ -2,67 +2,61 @@ import subprocess
 import os
 
 
-def generate_all_improv_variations():
-    """Generate a comprehensive set of improv variations"""
+def generate_chord_pitches_variations():
+    """Generate multiple variations using only chord_pitches_improv"""
 
-    os.makedirs("./all_improv_variations", exist_ok=True)
+    os.makedirs("./chord_pitches_variations", exist_ok=True)
 
-    # Configuration combinations
-    configs = [
-        {
-            "model": "basic_improv",
-            "chords": "C G Am F C G Am F",
-            "primer": "[60]",
-            "name": "basic_pop"
-        },
-        {
-            "model": "attention_improv",
-            "chords": "C G Am F C G Am F",
-            "primer": "[60]",
-            "name": "attention_pop"
-        },
-        {
-            "model": "chord_pitches_improv",
-            "chords": "C G Am F C G Am F",
-            "primer": "[60]",
-            "name": "chord_pitches_pop"
-        },
-        {
-            "model": "attention_improv",
-            "chords": "Am F C G Am F C G",
-            "primer": "[69]",  # Start on A
-            "name": "minor_melody"
-        },
-        {
-            "model": "attention_improv",
-            "chords": "G D Em C G D Em C",
-            "primer": "[67]",  # Start on G
-            "name": "folk_style"
-        }
+    # Different chord progressions to try
+    progressions = [
+        ("pop_classic", "C G Am F C G Am F"),
+        ("folk_style", "G D Em C G D Em C"),
+        ("minor_sad", "Am F C G Am F C G"),
+        ("blues_feel", "C7 F7 C7 G7 C7 F7 C7 G7"),
+        ("jazz_simple", "Cmaj7 Am7 Dm7 G7 Cmaj7 Am7 Dm7 G7"),
+        ("rock_power", "C F G C C F G C"),
+        ("emotional", "Am C F G Am C F G")
     ]
 
-    for config in configs:
-        print(f"Generating {config['name']}...")
+    # Different starting patterns
+    primers = [
+        ("single_c", "[60]"),
+        ("high_start", "[72]"),
+        ("low_start", "[48]"),
+        ("chord_c", "[60, 64, 67]"),
+        ("scale_up", "[60, 62, 64, 65, 67]"),
+        ("scale_down", "[67, 65, 64, 62, 60]"),
+        ("jump_pattern", "[60, 67, 64, 69, 65]")
+    ]
 
-        cmd = [
-            "improv_rnn_generate",
-            f"--config={config['model']}",
-            f"--bundle_file={config['model']}.mag",
-            "--output_dir=./all_improv_variations",
-            "--num_outputs=2",
-            f"--primer_melody={config['primer']}",
-            f"--backing_chords={config['chords']}",
-            "--render_chords"
-        ]
+    count = 0
 
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            print(f"✓ {config['name']} completed")
-        except subprocess.CalledProcessError as e:
-            print(f"✗ {config['name']} failed: {e.stderr}")
+    for prog_name, chords in progressions:
+        for primer_name, primer in primers:
+
+            output_name = f"{prog_name}_{primer_name}"
+            count += 1
+
+            print(f"🎵 ({count}) Generating {output_name}...")
+
+            cmd = [
+                "improv_rnn_generate",
+                "--config=pretrainedModels/chord_pitches_improv.mag",
+                "--bundle_file=pretrainedModels/chord_pitches_improv.mag",
+                "--output_dir=./chord_pitches_variations",
+                "--num_outputs=1",
+                f"--primer_melody={primer}",
+                f"--backing_chords={chords}",
+                "--render_chords"
+            ]
+
+            try:
+                result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                print(f"   ✅ {output_name} completed")
+            except Exception as e:
+                print(f"   ❌ {output_name} failed")
 
 
-generate_all_improv_variations()
-
-print("\n🎵 Generated complete set of improv variations!")
-print("The --render_chords flag means you'll hear both the melody AND the backing chords!")
+generate_chord_pitches_variations()
+print(f"\n🎉 Generated variations using chord_pitches_improv model!")
+print("Check the chord_pitches_variations folder for all your melodies!")
